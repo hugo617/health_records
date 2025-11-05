@@ -21,6 +21,19 @@
         <td><%= user.status %></td>
         <td><%= user.create_time&.strftime("%Y-%m-%d %H:%M:%S") %></td>
       </tr>
+
+      <% if user.file_records.any? %>
+        <tr>
+          <td colspan="6">
+            附件:
+            <ul>
+              <% user.file_records.each do |f| %>
+                <li><%= f.file_name %> — <%= number_with_delimiter(f.file_size) %> bytes — <%= f.upload_time&.strftime("%Y-%m-%d %H:%M:%S") %></li>
+              <% end %>
+            </ul>
+          </td>
+        </tr>
+      <% end %>
     <% end %>
   </tbody>
 </table>

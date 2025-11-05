@@ -10,7 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 20251105) do
+ActiveRecord::Schema[7.2].define(version: 202511051) do
+  create_table "files", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "file_name", null: false
+    t.string "file_path", null: false
+    t.bigint "file_size", null: false
+    t.datetime "upload_time", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.integer "file_status", default: 1, null: false
+    t.index ["user_id"], name: "index_files_on_user_id"
+  end
+
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "username", null: false
     t.string "nickname", null: false
@@ -20,4 +30,6 @@ ActiveRecord::Schema[7.2].define(version: 20251105) do
     t.integer "status", default: 1, null: false
     t.index ["nickname"], name: "index_users_on_nickname", unique: true
   end
+
+  add_foreign_key "files", "users", on_delete: :cascade
 end
