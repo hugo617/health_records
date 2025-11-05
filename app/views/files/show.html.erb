@@ -1,0 +1,8 @@
+<h1>预览：<%= @file_record.file_name %></h1>
+
+<%# 内嵌 PDF（iframe 或 embed），src 使用 download 路由以确保通过 send_file 输出 %>
+<div style="height: 90vh;">
+  <iframe src="<%= download_file_path(@file_record) %>" width="100%" height="100%" frameborder="0">
+    您的浏览器不支持内嵌 PDF，请 <a href="<%= download_file_path(@file_record) %>">下载查看</a>。
+  </iframe>
+</div>

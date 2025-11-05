@@ -1,0 +1,28 @@
+<h1>附件列表</h1>
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>文件名</th>
+      <th>大小 (bytes)</th>
+      <th>上传时间</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @files.each do |f| %>
+      <tr>
+        <td><%= f.id %></td>
+        <td><%= f.file_name %></td>
+        <td><%= f.file_size %></td>
+        <td><%= f.upload_time&.strftime("%Y-%m-%d %H:%M:%S") %></td>
+        <td>
+          <%= link_to '预览', file_path(f), target: '_blank' %> |
+          <%= link_to '打开(内嵌预览页)', file_path(f) %> |
+          <%= link_to '直接下载', download_file_path(f) %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
