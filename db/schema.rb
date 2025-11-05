@@ -10,7 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 202511051) do
+ActiveRecord::Schema[7.2].define(version: 202511053) do
+  create_table "entity_param_rels", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "rel_type", null: false
+    t.bigint "entity_id", null: false
+    t.bigint "param_id", null: false
+    t.datetime "start_time"
+    t.datetime "end_time"
+    t.integer "rel_status", default: 1, null: false
+    t.index ["param_id"], name: "index_entity_param_rels_on_param_id"
+    t.index ["rel_type", "entity_id", "param_id"], name: "index_entity_param_rels_on_rel_type_entity_id_param_id", unique: true
+  end
+
   create_table "files", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "file_name", null: false
@@ -19,6 +30,15 @@ ActiveRecord::Schema[7.2].define(version: 202511051) do
     t.datetime "upload_time", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "file_status", default: 1, null: false
     t.index ["user_id"], name: "index_files_on_user_id"
+  end
+
+  create_table "params", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "param_type", null: false
+    t.string "param_name", null: false
+    t.string "param_code", null: false
+    t.text "param_desc"
+    t.integer "sort", default: 0, null: false
+    t.index ["param_code"], name: "index_params_on_param_code", unique: true
   end
 
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -31,5 +51,6 @@ ActiveRecord::Schema[7.2].define(version: 202511051) do
     t.index ["nickname"], name: "index_users_on_nickname", unique: true
   end
 
+  add_foreign_key "entity_param_rels", "params", on_delete: :cascade
   add_foreign_key "files", "users", on_delete: :cascade
 end
