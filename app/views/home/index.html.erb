@@ -1,0 +1,26 @@
+<h1><%= @message %></h1>
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>用户名(username)</th>
+      <th>昵称(nickname)</th>
+      <th>电话(phone)</th>
+      <th>状态(status)</th>
+      <th>创建时间(create_time)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @users.each do |user| %>
+      <tr>
+        <td><%= user.id %></td>
+        <td><%= user.username %></td>
+        <td><%= user.nickname %></td>
+        <td><%= user.phone %></td>
+        <td><%= user.status %></td>
+        <td><%= user.create_time&.strftime("%Y-%m-%d %H:%M:%S") %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
