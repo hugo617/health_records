@@ -10,9 +10,17 @@ Rails.application.routes.draw do
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
 
+  get 'favicon.ico', to: 'application#favicon'
+
   resources :files, only: [:index, :show] do
     member do
       get :download
+    end
+  end
+
+  resources :reports, only: [:index] do
+    collection do
+      post :search
     end
   end
 end

@@ -18,10 +18,28 @@ class FilesController < ApplicationController
       render plain: "File not found: #{@file_record.file_path}", status: :not_found and return
     end
 
+    # Determine content type dynamically (fall back to application/octet-stream)
+    content_type = nil
+    begin
+      if defined?(Marcel)
+        content_type = Marcel::MimeType.for(Pathname.new(full_path))
+      end
+    rescue StandardError
+      content_type = nil
+    end
+
+    if content_type.blank?
+      # Use Rack::Mime to map by extension as a fallback
+      content_type = Rack::Mime.mime_type(File.extname(full_path).downcase, 'application/octet-stream')
+    end
+
+    # Allow caller to request 'attachment' for download; default to 'inline' for preview
+    disposition = params[:disposition] == 'attachment' ? 'attachment' : 'inline'
+
     send_file full_path,
               filename: @file_record.file_name,
-              type: 'application/pdf',
-              disposition: 'inline'
+              type: content_type,
+              disposition: disposition
   end
 
   private

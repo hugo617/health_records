@@ -1,0 +1,98 @@
+<h1>报告查询</h1>
+
+<p>请选择报告类型：</p>
+
+<div id="report-buttons" style="display:flex;flex-wrap:wrap;gap:12px;">
+  <% @report_params.each do |p| %>
+    <button class="report-button" data-param-id="<%= p.id %>" style="width:160px;height:80px;background:#f5f7fb;border:1px solid #dbe6f5;border-radius:6px;cursor:pointer;">
+      <div style="font-weight:600"><%= p.param_name %></div>
+      <div style="font-size:12px;color:#666;margin-top:6px;"><%= p.param_code %></div>
+    </button>
+  <% end %>
+</div>
+
+<hr/>
+
+<div id="report-result">
+  <!-- 查询结果或错误消息会注入到这里 -->
+</div>
+
+<!-- 简单的 modal（隐藏/显示）-->
+<div id="name-modal" style="display:none;position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:999;">
+  <div style="width:420px;margin:80px auto;background:#fff;padding:18px;border-radius:6px;">
+    <h3 style="margin-top:0">请输入用户名 / 昵称</h3>
+    <input id="modal-input-name" type="text" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;" />
+    <div style="text-align:right;margin-top:12px;">
+      <button id="modal-cancel" style="margin-right:8px;">取消</button>
+      <button id="modal-ok">确定</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const buttons = document.querySelectorAll('.report-button');
+    const modal = document.getElementById('name-modal');
+    const input = document.getElementById('modal-input-name');
+    const modalOk = document.getElementById('modal-ok');
+    const modalCancel = document.getElementById('modal-cancel');
+    const resultDiv = document.getElementById('report-result');
+    let selectedParamId = null;
+    let selectedParamName = null;
+
+    // CSRF token for fetch POST
+    function csrfToken() {
+      const m = document.querySelector('meta[name="csrf-token"]');
+      return m ? m.content : '';
+    }
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedParamId = btn.dataset.paramId;
+        selectedParamName = btn.innerText.trim().split('\n')[0];
+        input.value = '';
+        modal.style.display = 'block';
+        input.focus();
+      });
+    });
+
+    modalCancel.addEventListener('click', () => { modal.style.display = 'none'; });
+
+    modalOk.addEventListener('click', () => {
+      const name = input.value.trim();
+      if (!name) {
+        alert('请输入用户名或昵称');
+        return;
+      }
+      // 发起 AJAX 请求到 reports#search
+      fetch('<%= search_reports_path %>', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken()
+        },
+        body: JSON.stringify({ name: name, param_id: selectedParamId })
+      }).then(resp => resp.json())
+        .then(json => {
+          modal.style.display = 'none';
+          if (json.error) {
+            resultDiv.innerHTML = '<div style="color:#b00;margin:10px 0;">' + json.error + '</div>';
+          } else if (json.html) {
+            resultDiv.innerHTML = '<h2>查询结果（' + escapeHtml(name) + ' / ' + escapeHtml(selectedParamName) + '）</h2>' + json.html;
+          } else {
+            resultDiv.innerHTML = '<div>未知响应</div>';
+          }
+        }).catch(err => {
+          modal.style.display = 'none';
+          resultDiv.innerHTML = '<div style="color:#b00">请求失败：' + err + '</div>';
+        });
+    });
+
+    // 简单的 HTML 转义
+    function escapeHtml(s) {
+      return (s || '').replace(/[&<>"']/g, function(m) {
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
+      });
+    }
+  })();
+</script>

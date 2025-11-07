@@ -1,0 +1,27 @@
+<table border="1" style="width:100%;border-collapse:collapse;">
+  <thead>
+    <tr style="background:#fafafa">
+      <th>ID</th>
+      <th>文件名</th>
+      <th>大小(bytes)</th>
+      <th>上传时间</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% files.each do |f| %>
+      <tr>
+        <td style="padding:8px;"><%= f.id %></td>
+        <td style="padding:8px;"><%= f.file_name %></td>
+        <td style="padding:8px;"><%= number_with_delimiter(f.file_size) %></td>
+        <td style="padding:8px;"><%= f.upload_time&.strftime('%Y-%m-%d %H:%M:%S') %></td>
+        <td style="padding:8px;">
+          <a href="<%= file_path(f) %>" target="_blank" rel="noopener">预览</a>
+          &nbsp;|&nbsp;
+          <!-- 传入 disposition=attachment 强制浏览器下载 -->
+          <a href="<%= download_file_path(f, disposition: 'attachment') %>" target="_blank" rel="noopener">下载</a>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
