@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>手机号登录</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "SF Pro Text", "PingFang SC", sans-serif;
+      background: linear-gradient(135deg, #007aff, #00b4d8);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #333;
+    }
+    .login-card {
+      background: #fff;
+      width: 90%;
+      max-width: 360px;
+      padding: 32px 24px;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 28px;
+      font-weight: 600;
+      font-size: 22px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 16px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+    }
+    .code-wrap {
+      display: flex;
+      gap: 8px;
+    }
+    .code-wrap button {
+      padding: 0 16px;
+      border: none;
+      border-radius: 10px;
+      background: #007aff;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .login-btn {
+      width: 100%;
+      background: linear-gradient(90deg, #007aff, #00b4d8);
+      border: none;
+      color: white;
+      font-size: 16px;
+      font-weight: 500;
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <h2>欢迎登录</h2>
+    <input type="tel" id="phone" placeholder="手机号" />
+    <div class="code-wrap">
+      <input type="text" id="code" placeholder="验证码" />
+      <button onclick="getCode()">获取</button>
+    </div>
+    <button class="login-btn" onclick="login()">登录</button>
+  </div>
+
+  <script>
+    function getCode() {
+      const btn = event.target;
+      let t = 60;
+      btn.disabled = true;
+      const timer = setInterval(() => {
+        btn.textContent = `${t}s`;
+        t--;
+        if (t < 0) {
+          clearInterval(timer);
+          btn.textContent = "获取";
+          btn.disabled = false;
+        }
+      }, 1000);
+    }
+
+    function login() {
+      const phone = document.getElementById("phone").value;
+      const code = document.getElementById("code").value;
+      alert(`登录成功\n手机号：${phone}\n验证码：${code}`);
+    }
+  </script>
+</body>
+</html>

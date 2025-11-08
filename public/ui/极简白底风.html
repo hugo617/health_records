@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>手机验证码登录</title>
+  <style>
+    body {
+      font-family: "PingFang SC", "Helvetica Neue", sans-serif;
+      background: #fff;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .login-box {
+      width: 100%;
+      max-width: 320px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 22px;
+      margin-bottom: 40px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+    }
+    .code-row {
+      display: flex;
+      gap: 10px;
+    }
+    .code-row input {
+      flex: 1;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #007aff;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .get-code {
+      white-space: nowrap;
+      width: 100px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h1>手机号登录</h1>
+    <input type="tel" id="phone" placeholder="请输入手机号" />
+    <div class="code-row">
+      <input type="text" id="code" placeholder="请输入验证码" />
+      <button class="get-code" onclick="getCode()">获取验证码</button>
+    </div>
+    <button onclick="login()">登录</button>
+  </div>
+
+  <script>
+    function getCode() {
+      const btn = document.querySelector('.get-code');
+      let time = 60;
+      btn.disabled = true;
+      const timer = setInterval(() => {
+        btn.textContent = time + 's';
+        time--;
+        if (time < 0) {
+          clearInterval(timer);
+          btn.textContent = '获取验证码';
+          btn.disabled = false;
+        }
+      }, 1000);
+    }
+
+    function login() {
+      const phone = document.getElementById('phone').value;
+      const code = document.getElementById('code').value;
+      alert(`登录成功：${phone} / 验证码 ${code}`);
+    }
+  </script>
+</body>
+</html>

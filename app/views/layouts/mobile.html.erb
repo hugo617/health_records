@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title><%= content_for?(:title) ? yield(:title) : "健康档案 · 智能登录" %></title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+    
+    <%# 移动端专用样式 %>
+    <%= yield :mobile_styles %>
+    
+    <%# 移动端状态栏配置 %>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#f0f7ff">
+</head>
+<body>
+    <%= yield %>
+    
+    <%# 移动端专用脚本 %>
+    <%= yield :mobile_scripts %>
+</body>
+</html>

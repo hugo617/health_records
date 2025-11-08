@@ -1,0 +1,202 @@
+<%# app/views/sessions/mobile_new.html.erb %>
+<% content_for :title do %>
+    健康档案 · 智能登录
+<% end %>
+
+<% content_for :mobile_styles do %>
+  <%= stylesheet_link_tag "mobile", "data-turbo-track": "reload" %>
+<% end %>
+
+<div class="particles"></div>
+
+<div class="health-card">
+    <div class="glass-header">
+        <div class="logo-icon">
+            <svg class="icon-svg" viewBox="0 0 24 24">
+                <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-2 13h-2v2H8v-2H6v-2h2v-2h2v2h2v2zm2-7V3.5L18.5 8H14z"/>
+                <circle cx="16" cy="16" r="1.5"/>
+                <path d="M16 13v1h1v-1h-1z"/>
+            </svg>
+        </div>
+        <div class="title">健康档案系统</div>
+        <div class="subtitle">智能管理 · 安全登录</div>
+    </div>
+
+    <div id="error-message" class="error-message"></div>
+    <div id="success-message" class="success-message"></div>
+
+    <%= form_tag mobile_login_path, method: :post, id: "login-form", data: { turbo: false } do %>
+        <div class="input-group">
+            <%= telephone_field_tag :phone, nil, 
+                class: 'neu-input',
+                placeholder: '请输入手机号',
+                required: true,
+                pattern: '^1[3-9]\d{9}$',
+                title: '请输入正确的11位手机号',
+                autocomplete: 'tel' %>
+        </div>
+
+        <div class="input-group code-group">
+            <%= text_field_tag :code, nil,
+                class: 'neu-input',
+                placeholder: '输入验证码',
+                required: true,
+                pattern: '^\d{6}$',
+                title: '请输入6位验证码',
+                maxlength: 6,
+                inputmode: 'numeric' %>
+            
+            <button type="button" id="send-code-btn" class="neu-btn">
+                <span class="loading-spinner"></span>
+                <span class="button-text">获取验证码</span>
+            </button>
+        </div>
+
+        <button type="submit" class="neu-btn submit-health">
+            <span class="loading-spinner"></span>
+            <span class="button-text">立即登录</span>
+        </button>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <%= link_to '管理员登录', admin_login_path, 
+                style: 'color: #4A90E2; text-decoration: none; font-size: 14px;' %>
+        </div>
+    <% end %>
+</div>
+
+<% content_for :mobile_scripts do %>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('login-form');
+        const phoneInput = document.querySelector('input[name="phone"]');
+        const codeInput = document.querySelector('input[name="code"]');
+        const sendCodeBtn = document.getElementById('send-code-btn');
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+
+        // 验证手机号格式
+        function isValidPhone(phone) {
+            return /^1[3-9]\d{9}$/.test(phone);
+        }
+
+        // 显示错误信息
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('visible');
+            setTimeout(() => {
+                errorMessage.classList.remove('visible');
+            }, 3000);
+        }
+
+        // 显示成功信息
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.classList.add('visible');
+            setTimeout(() => {
+                successMessage.classList.remove('visible');
+            }, 3000);
+        }
+
+        // 倒计时功能
+        function startCountdown(button, seconds) {
+            button.disabled = true;
+            const originalText = button.querySelector('.button-text').textContent;
+            const countDown = setInterval(() => {
+                button.querySelector('.button-text').textContent = `${seconds}秒后重试`;
+                seconds -= 1;
+                if (seconds < 0) {
+                    clearInterval(countDown);
+                    button.disabled = false;
+                    button.querySelector('.button-text').textContent = originalText;
+                }
+            }, 1000);
+        }
+
+        // 发送验证码
+        sendCodeBtn.addEventListener('click', async function() {
+            const phone = phoneInput.value.trim();
+            
+            if (!isValidPhone(phone)) {
+                showError('请输入正确的手机号');
+                return;
+            }
+
+            try {
+                sendCodeBtn.disabled = true;
+                sendCodeBtn.querySelector('.loading-spinner').style.display = 'inline-block';
+                
+                const response = await fetch('/api/send_code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ phone })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess('验证码已发送');
+                    startCountdown(sendCodeBtn, 60);
+                } else {
+                    showError(data.error || '发送失败，请稍后重试');
+                }
+            } catch (error) {
+                showError('网络错误，请稍后重试');
+            } finally {
+                sendCodeBtn.querySelector('.loading-spinner').style.display = 'none';
+            }
+        });
+
+        // 表单提交
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const phone = phoneInput.value.trim();
+            const code = codeInput.value.trim();
+
+            if (!isValidPhone(phone)) {
+                showError('请输入正确的手机号');
+                return;
+            }
+
+            if (!/^\d{6}$/.test(code)) {
+                showError('请输入6位验证码');
+                return;
+            }
+
+            try {
+                submitBtn.disabled = true;
+                submitBtn.querySelector('.loading-spinner').style.display = 'inline-block';
+
+                const response = await fetch('/mobile_login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ phone, code })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('登录成功');
+                    setTimeout(() => {
+                        window.location.href = data.redirect_to || '/';
+                    }, 1000);
+                } else {
+                    showError(data.error || '登录失败，请检查验证码');
+                }
+            } catch (error) {
+                showError('网络错误，请稍后重试');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.querySelector('.loading-spinner').style.display = 'none';
+            }
+        });
+    });
+    </script>
+<% end %>
